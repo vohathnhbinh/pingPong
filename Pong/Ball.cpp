@@ -5,8 +5,9 @@ Ball::Ball(float startX, float startY, float size)
 	position.x = startX;
 	position.y = startY;
 
-	ballShape.setSize(sf::Vector2f(size, size));
+	ballShape.setSize(Vector2f(size, size));
 	ballShape.setPosition(position);
+	ballShape.setFillColor(Color::Red);
 }
 
 void Ball::setPosition(float startX, float startY)

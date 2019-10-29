@@ -13,7 +13,7 @@ private:
 	float batSpeed = 400.f;
 
 public:
-	Bat(float, float, float, float); // constructor
+	Bat(float, float, float, float, Color); // constructor
 	void setPosition(float, float);
 	FloatRect getPosition();
 

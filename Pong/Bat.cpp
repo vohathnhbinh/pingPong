@@ -1,12 +1,13 @@
 #include "Bat.h"
 
-Bat::Bat(float startX, float startY, float width, float height) // Toa do bat dau cua thanh truot
+Bat::Bat(float startX, float startY, float width, float height, Color color) // Toa do bat dau cua thanh truot
 {
 	position.x = startX;
 	position.y = startY;
 
 	batShape.setSize(Vector2f(width, height));
 	batShape.setPosition(position);
+	batShape.setFillColor(color);
 }
 
 void Bat::setPosition(float startX, float startY)
