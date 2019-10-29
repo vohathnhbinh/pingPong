@@ -29,7 +29,7 @@ void main()
 	Bat Player1(50, windowHeight / 2 - batHeight / 2, batWidth, batHeight, Color::White);
 	Bat Player2(windowWidth - 50 - batWidth, windowHeight / 2 - batHeight / 2, batWidth, batHeight, Color::White);
 	Ball ball(windowWidth / 2, windowHeight / 2 - ballSize, ballSize);
-	
+
 
 	// Snowfall
 	unsigned int elapsed = 0;
@@ -46,7 +46,32 @@ void main()
 	hud.setFont(font);
 	hud.setCharacterSize(40);
 	hud.setFillColor(sf::Color::White);
-	hud.setString("Nhan Enter de bat dau tro choi");
+
+	Text pauseMessage;
+	pauseMessage.setFont(font);
+	pauseMessage.setCharacterSize(80);
+	pauseMessage.setPosition(window.getSize().x / 3.5, window.getSize().y / 6);
+	pauseMessage.setFillColor(sf::Color::White);
+	pauseMessage.setString("S N O N W Y");
+
+	Text Single;
+	Single.setFont(font);
+	Single.setCharacterSize(40);
+	Single.setPosition(window.getSize().x / 4, window.getSize().y / 1.8);
+	Single.setFillColor(sf::Color::White);
+	Single.setString("Single player");
+
+	Text Multi;
+	Multi.setFont(font);
+	Multi.setCharacterSize(40);
+	Multi.setPosition(window.getSize().x / 2, window.getSize().y / 1.8);
+	Multi.setFillColor(sf::Color::White);
+	Multi.setString("Multi player");
+
+	int selected = 0;
+	bool leftKey = Keyboard::isKeyPressed(Keyboard::Key::Left);
+	bool rightKey = Keyboard::isKeyPressed(Keyboard::Key::Right);
+
 
 	// Am thanh
 	Music music;
@@ -73,6 +98,20 @@ void main()
 		Event event;
 		while (window.pollEvent(event)) // Kiem tra xem co tin hieu nao gui den OS khong
 		{
+			if (Keyboard::isKeyPressed(Keyboard::Key::Left) && !leftKey)
+			{
+				selected -= 1;
+			}
+
+			if (Keyboard::isKeyPressed(Keyboard::Key::Right) && !rightKey)
+			{
+				selected += 1;
+			}
+
+			if (selected < 0)
+				selected = 1;
+			if (selected > 1)
+				selected = 0;
 			if (event.type == Event::Closed || Keyboard::isKeyPressed(Keyboard::Escape)) // Tin hieu dong
 			{
 				window.close(); // Cua so se duoc dong
@@ -124,30 +163,33 @@ void main()
 					Player1.moveDown(deltaTime);
 			}
 
-
-			if (Keyboard::isKeyPressed(Keyboard::Up))
-			{
-				if (Player2.getPosition().top >= 0)
-					Player2.moveUp(deltaTime);
-			}
-			if (Keyboard::isKeyPressed(Keyboard::Down))
-			{
-				if (Player2.getPosition().top + batHeight <= windowHeight)
-					Player2.moveDown(deltaTime);
-			}
-
-			if (ball.getPosition().left >= 150)
-			{
-				if ((Player2.getPosition().top + batHeight / 2) <= (ball.getPosition().top) + 5)
+			if (selected == 1) {
+				if (Keyboard::isKeyPressed(Keyboard::Up))
+				{
+					if (Player2.getPosition().top >= 0)
+						Player2.moveUp(deltaTime);
+				}
+				if (Keyboard::isKeyPressed(Keyboard::Down))
 				{
 					if (Player2.getPosition().top + batHeight <= windowHeight)
 						Player2.moveDown(deltaTime);
 				}
+			}
 
-				if ((Player2.getPosition().top + batHeight / 2) >= (ball.getPosition().top + ballSize - 5))
+			if (selected == 0) {
+				if (ball.getPosition().left >= 150)
 				{
-					if (Player2.getPosition().top >= 0)
-						Player2.moveUp(deltaTime);
+					if ((Player2.getPosition().top + batHeight / 2) <= (ball.getPosition().top) + 5)
+					{
+						if (Player2.getPosition().top + batHeight <= windowHeight)
+							Player2.moveDown(deltaTime);
+					}
+
+					if ((Player2.getPosition().top + batHeight / 2) >= (ball.getPosition().top + ballSize - 5))
+					{
+						if (Player2.getPosition().top >= 0)
+							Player2.moveUp(deltaTime);
+					}
 				}
 			}
 
@@ -156,13 +198,13 @@ void main()
 			{
 				end.play();
 				isPlaying = false;
-				hud.setString("Nguoi choi 2 thang!\nNhan dup Enter de khoi dong lai tro choi!");
+				hud.setString("Nguoi choi 2 thang!");
 			}
 			if (ball.getPosition().left + ballSize > windowWidth - 50)
 			{
 				end.play();
 				isPlaying = false;
-				hud.setString("Nguoi choi 1 thang!\nNhan dup Enter de khoi dong lai tro choi!");
+				hud.setString("Nguoi choi 1 thang!");
 			}
 
 			// Banh va cham vao tuong
@@ -217,8 +259,23 @@ void main()
 			window.draw(ball.getShape());
 		}
 		else
+		{
+			Single.setFillColor(Color::White);
+			Multi.setFillColor(Color::White);
+			switch (selected)
+			{
+			case 0:
+				Single.setFillColor(Color::Green);
+				break;
+			case 1:
+				Multi.setFillColor(Color::Green);
+				break;
+			}
 			window.draw(hud);
-
+			window.draw(pauseMessage);
+			window.draw(Single);
+			window.draw(Multi);
+		}
 		window.display();
 	}
 }
