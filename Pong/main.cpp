@@ -30,13 +30,12 @@ void main()
 	Bat Player2(windowWidth - 50 - batWidth, windowHeight / 2 - batHeight / 2, batWidth, batHeight, Color::White);
 	Ball ball(windowWidth / 2, windowHeight / 2 - ballSize, ballSize);
 
-
 	// Snowfall
 	unsigned int elapsed = 0;
 	srand((unsigned int)time(0));
 	std::vector<CircleShape> vt;
-	int num = 100;
-	int delay = 7;
+	int num = 200;
+	int delay = 5;
 	vt.reserve(num);
 
 	// Van ban
@@ -50,28 +49,24 @@ void main()
 	Text pauseMessage;
 	pauseMessage.setFont(font);
 	pauseMessage.setCharacterSize(80);
-	pauseMessage.setPosition(window.getSize().x / 3.5, window.getSize().y / 6);
 	pauseMessage.setFillColor(sf::Color::White);
-	pauseMessage.setString("S N O N W Y");
+	pauseMessage.setString("S N O W Y");
 
 	Text Single;
 	Single.setFont(font);
 	Single.setCharacterSize(40);
-	Single.setPosition(window.getSize().x / 4, window.getSize().y / 1.8);
 	Single.setFillColor(sf::Color::White);
 	Single.setString("Single player");
 
 	Text Multi;
 	Multi.setFont(font);
 	Multi.setCharacterSize(40);
-	Multi.setPosition(window.getSize().x / 2, window.getSize().y / 1.8);
 	Multi.setFillColor(sf::Color::White);
 	Multi.setString("Multi player");
 
 	int selected = 0;
 	bool leftKey = Keyboard::isKeyPressed(Keyboard::Key::Left);
 	bool rightKey = Keyboard::isKeyPressed(Keyboard::Key::Right);
-
 
 	// Am thanh
 	Music music;
@@ -88,9 +83,19 @@ void main()
 	soundbuffer0.loadFromFile("sound/end.ogg");
 	Sound end(soundbuffer0);
 
+	// Secret
+	Music secret_music;
+	secret_music.openFromFile("sound/secret.ogg");
+	secret_music.setLoop(true);
+	Texture secret_texture;
+	secret_texture.loadFromFile("image/secret.png");
+	Sprite secret(secret_texture, IntRect(0, 0, 960, 720));
+
+
 	Clock animation; // Dieu chinh toc do animation cua background
 	Clock clock; // Tinh thoi gian de game co the chay phu hop voi tung loai may tinh
 	bool isPlaying = false;
+	bool check = false;
 	while (window.isOpen())
 	{
 		elapsed++;
@@ -137,6 +142,15 @@ void main()
 					clock.restart();
 				}
 			}
+		}
+
+		if (Keyboard::isKeyPressed(Keyboard::P))
+		{
+			check = true;
+			music.stop();
+			secret_music.play();
+			pauseMessage.setFillColor(Color::Red);
+			pauseMessage.setString("The End");
 		}
 
 		if (animation.getElapsedTime().asSeconds() > .1f)
@@ -196,13 +210,15 @@ void main()
 			// Banh vuot qua mot trong hai thanh truot
 			if (ball.getPosition().left < 50)
 			{
-				end.play();
+				if (!check)
+					end.play();
 				isPlaying = false;
 				hud.setString("Nguoi choi 2 thang!");
 			}
 			if (ball.getPosition().left + ballSize > windowWidth - 50)
 			{
-				end.play();
+				if (!check)
+					end.play();
 				isPlaying = false;
 				hud.setString("Nguoi choi 1 thang!");
 			}
@@ -232,16 +248,25 @@ void main()
 			Player2.update();
 		}
 
-		hud.setPosition(windowWidth / 2 - hud.getLocalBounds().width / 2, windowHeight / 2 - hud.getLocalBounds().height / 2);
+		pauseMessage.setPosition(window.getSize().x / 2 - pauseMessage.getLocalBounds().width / 2, window.getSize().y / 6);
+		Single.setPosition(window.getSize().x / 4 - Single.getLocalBounds().width / 2, window.getSize().y / 1.8);
+		Multi.setPosition(window.getSize().x * .75f - Multi.getLocalBounds().width / 2, window.getSize().y / 1.8);
+		hud.setPosition(windowWidth / 2 - hud.getLocalBounds().width / 2, windowHeight / 2 - 90);
 
 
 		if (isPlaying)
 		{
-			window.draw(sprite);
+			if (check)
+				window.draw(secret);
+			else
+				window.draw(sprite);
 
 			if (elapsed >= delay && vt.size() < num)
 			{
-				createSnow(vt, windowWidth);
+				if (check)
+					createSnow(vt, windowWidth, Color::Red);
+				else
+					createSnow(vt, windowWidth, Color::White);
 				elapsed = 0;
 			}
 
@@ -260,6 +285,7 @@ void main()
 		}
 		else
 		{
+			window.clear();
 			Single.setFillColor(Color::White);
 			Multi.setFillColor(Color::White);
 			switch (selected)
