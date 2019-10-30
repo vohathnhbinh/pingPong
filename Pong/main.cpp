@@ -16,8 +16,8 @@ void main()
 	const int windowHeight = 720;
 	const int batWidth = 10; const int batHeight = 100;
 	const int ballSize = 20;
-	RenderWindow window(VideoMode(windowWidth, windowHeight), "pingPong", Style::Close);
-	window.setFramerateLimit(60);
+	RenderWindow window(VideoMode(windowWidth, windowHeight), "pingPong", Style::Close); // Thiet lap cua so game
+	window.setFramerateLimit(60); // Gioi han so luong khung hinh chay trong 1s
 
 	// Load man hinh nen
 	Texture texture;
@@ -30,7 +30,7 @@ void main()
 	Bat Player2(windowWidth - 50 - batWidth, windowHeight / 2 - batHeight / 2, batWidth, batHeight, Color::White);
 	Ball ball(windowWidth / 2, windowHeight / 2 - ballSize, ballSize);
 
-	// Snowfall
+	// Khoi tao vector va cac bien xu li hieu ung tuyet roi
 	unsigned int elapsed = 0;
 	srand((unsigned int)time(0));
 	std::vector<CircleShape> vt;
@@ -73,7 +73,7 @@ void main()
 	music.openFromFile("sound/music.ogg");
 	music.play();
 	music.setLoop(true);
-	SoundBuffer soundbuffer1, soundbuffer2, soundbuffer0;
+	SoundBuffer soundbuffer1, soundbuffer2, soundbuffer0, soundbuffer3;
 	soundbuffer1.loadFromFile("sound/hitbat.ogg");
 	Sound hitbat(soundbuffer1);
 	hitbat.setVolume(50);
@@ -82,6 +82,8 @@ void main()
 	hitwall.setVolume(50);
 	soundbuffer0.loadFromFile("sound/end.ogg");
 	Sound end(soundbuffer0);
+	soundbuffer3.loadFromFile("sound/laugh.ogg");
+	Sound enter(soundbuffer3);
 
 	// Secret
 	Music secret_music;
@@ -89,8 +91,7 @@ void main()
 	secret_music.setLoop(true);
 	Texture secret_texture;
 	secret_texture.loadFromFile("image/secret.png");
-	Sprite secret(secret_texture, IntRect(0, 0, 960, 720));
-
+	Sprite secret(secret_texture, IntRect(0, 0, windowWidth, windowWidth));
 
 	Clock animation; // Dieu chinh toc do animation cua background
 	Clock clock; // Tinh thoi gian de game co the chay phu hop voi tung loai may tinh
@@ -105,11 +106,13 @@ void main()
 		{
 			if (Keyboard::isKeyPressed(Keyboard::Key::Left) && !leftKey)
 			{
+				hitbat.play();
 				selected -= 1;
 			}
 
 			if (Keyboard::isKeyPressed(Keyboard::Key::Right) && !rightKey)
 			{
+				hitbat.play();
 				selected += 1;
 			}
 
@@ -126,6 +129,8 @@ void main()
 			{
 				if (!isPlaying)
 				{
+					enter.play();
+
 					// Reset lai vi tri cua cac doi tuong khi bat dau mot game moi
 					Player1.setPosition(50, windowHeight / 2 - batHeight / 2);
 					Player2.setPosition(windowWidth - 50 - batWidth, windowHeight / 2 - batHeight / 2);
@@ -138,7 +143,8 @@ void main()
 					int random1 = rand() % 2;
 					ball.setVelocity(200.f * arr[random0], 200.f * arr[random1]);
 
-					isPlaying = true; // Bat dau lai tro choi
+					// Bat dau lai tro choi
+					isPlaying = true;
 					clock.restart();
 				}
 			}
@@ -153,6 +159,7 @@ void main()
 			pauseMessage.setString("The End");
 		}
 
+		// Chay hinh nen dong
 		if (animation.getElapsedTime().asSeconds() > .1f)
 		{
 			if (SourceSprite.top == windowHeight * 7)
@@ -166,42 +173,48 @@ void main()
 		{
 			float deltaTime = clock.restart().asSeconds();
 
+			// Dieu khien nguoi choi 1
 			if (Keyboard::isKeyPressed(Keyboard::W))
 			{
-				if (Player1.getPosition().top >= 0)
+				if (Player1.getPosition().top > 5)
 					Player1.moveUp(deltaTime);
 			}
 			if (Keyboard::isKeyPressed(Keyboard::S))
 			{
-				if (Player1.getPosition().top + batHeight <= windowHeight)
+				if (Player1.getPosition().top + batHeight < windowHeight - 5)
 					Player1.moveDown(deltaTime);
 			}
 
-			if (selected == 1) {
+			// Dieu khien nguoi choi 2
+			if (selected == 1)
+			{
+				Player2.setbatSpeed(400.f);
 				if (Keyboard::isKeyPressed(Keyboard::Up))
 				{
-					if (Player2.getPosition().top >= 0)
+					if (Player2.getPosition().top > 5)
 						Player2.moveUp(deltaTime);
 				}
 				if (Keyboard::isKeyPressed(Keyboard::Down))
 				{
-					if (Player2.getPosition().top + batHeight <= windowHeight)
+					if (Player2.getPosition().top + batHeight < windowHeight - 5)
 						Player2.moveDown(deltaTime);
 				}
 			}
 
-			if (selected == 0) {
+			// Xu li nguoi choi may tinh (computer player)
+			if (selected == 0)
+			{
+				Player2.setbatSpeed(550.f);
 				if (ball.getPosition().left >= 150)
 				{
-					if ((Player2.getPosition().top + batHeight / 2) <= (ball.getPosition().top) + 5)
+					if ((Player2.getPosition().top + batHeight) < (ball.getPosition().top + ballSize + ballSize / 2))
 					{
-						if (Player2.getPosition().top + batHeight <= windowHeight)
+						if (Player2.getPosition().top + batHeight < windowHeight - 5)
 							Player2.moveDown(deltaTime);
 					}
-
-					if ((Player2.getPosition().top + batHeight / 2) >= (ball.getPosition().top + ballSize - 5))
+					else if (Player2.getPosition().top > (ball.getPosition().top - ballSize / 2))
 					{
-						if (Player2.getPosition().top >= 0)
+						if (Player2.getPosition().top > 5)
 							Player2.moveUp(deltaTime);
 					}
 				}
@@ -248,11 +261,11 @@ void main()
 			Player2.update();
 		}
 
+		// Dieu chinh vi tri cua tung doan van ban
 		pauseMessage.setPosition(window.getSize().x / 2 - pauseMessage.getLocalBounds().width / 2, window.getSize().y / 6);
 		Single.setPosition(window.getSize().x / 4 - Single.getLocalBounds().width / 2, window.getSize().y / 1.8);
 		Multi.setPosition(window.getSize().x * .75f - Multi.getLocalBounds().width / 2, window.getSize().y / 1.8);
 		hud.setPosition(windowWidth / 2 - hud.getLocalBounds().width / 2, windowHeight / 2 - 90);
-
 
 		if (isPlaying)
 		{
@@ -261,6 +274,7 @@ void main()
 			else
 				window.draw(sprite);
 
+			// Xu li hieu ung tuyet roi
 			if (elapsed >= delay && vt.size() < num)
 			{
 				if (check)
@@ -269,7 +283,6 @@ void main()
 					createSnow(vt, windowWidth, Color::White);
 				elapsed = 0;
 			}
-
 			for (int i = 0; i < vt.size(); i++)
 			{
 				vt[i].move(.0f, vt[i].getRadius() * .4f);
@@ -279,6 +292,7 @@ void main()
 					vt.erase(vt.begin() + i);
 			}
 
+			// Hien thi thanh truot va qua bong len man hinh
 			window.draw(Player1.getShape());
 			window.draw(Player2.getShape());
 			window.draw(ball.getShape());
@@ -297,11 +311,15 @@ void main()
 				Multi.setFillColor(Color::Green);
 				break;
 			}
+
+			// Hien thi cac van ban len man hinh
 			window.draw(hud);
 			window.draw(pauseMessage);
 			window.draw(Single);
 			window.draw(Multi);
 		}
+
+		// Ket thuc khung hinh va hien thi noi dung len man hinh
 		window.display();
 	}
 }
