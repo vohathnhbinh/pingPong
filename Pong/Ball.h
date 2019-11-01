@@ -12,7 +12,7 @@ private:
 	float yVelocity = 0; // toc do theo chieu doc
 public:
 	Ball(float, float, float); // constructor
-	void setPosition(float startX, float startY);
+	void setPosition(float, float);
 	FloatRect getPosition();
 
 	RectangleShape getShape();
