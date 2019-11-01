@@ -21,7 +21,7 @@ public:
 	float getXVelocity();
 	float getYVelocity();
 
-	void reboundSides();
+	void reboundSides(float);
 
 	void reboundBat(float);
 

@@ -239,7 +239,7 @@ void main()
 			// Banh va cham vao tuong
 			if (ball.getPosition().top <= 0 || ball.getPosition().top + ballSize >= windowHeight)
 			{
-				ball.reboundSides();
+				ball.reboundSides(deltaTime);
 				hitwall.play();
 			}
 

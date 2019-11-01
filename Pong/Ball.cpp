@@ -51,8 +51,9 @@ float Ball::getYVelocity()
 	return yVelocity;
 }
 
-void Ball::reboundSides()
+void Ball::reboundSides(float deltaTime)
 {
+	position.y -= (yVelocity * deltaTime);
 	yVelocity = -yVelocity;
 	// Xu li tinh huong cham vao tuong, toc do chieu doc se duoc dao nguoc
 }
